@@ -16,7 +16,9 @@ public class MazeGenerator {
     // main method: generate the grid matrix of the maze
     public void generateMaze(int rows, int cols) {
         Tile start;
-        int visitedCount = 0;
+        int visitedCount;
+
+        visitedCount = 0;
 
         initializeMazeParameters(rows, cols);
 
@@ -26,8 +28,12 @@ public class MazeGenerator {
 
         // loop as long as we haven't fit all the tiles into the maze
         while (visitedCount < rows * cols) {
-            int[] randomTile = getRandomUnvisitedTile();
-            Map<String, int[]> path = createPath(randomTile);
+            int[] randomTile;
+            Map<String, int[]> path;
+
+            randomTile = getRandomUnvisitedTile();
+            path = createPath(randomTile);
+
             visitedCount += carvePath(path);
         }
     }
@@ -36,6 +42,8 @@ public class MazeGenerator {
 
     // initialize no. of rows/colums, start/end points
     private void initializeMazeParameters(int rows, int cols) {
+        int corner;
+
         this.rows = rows;
         this.cols = cols;
         this.grid = new Tile[rows][cols];
@@ -47,7 +55,7 @@ public class MazeGenerator {
 
         // generate a random starting point (one of the 4 corners)
         // the end is the opposite of the start
-        int corner = rand.nextInt(4);
+        corner = rand.nextInt(4);
         switch (corner) {
             case 0 -> {
                 startX = 0;
@@ -82,30 +90,48 @@ public class MazeGenerator {
 
     // return the list of all valid/possible neighbors for a specific tile
     private List<int[]> getNeighbors(int row, int col) {
-        List<int[]> neighbors = new ArrayList<>();
+        List<int[]> neighbors;
+
+        neighbors = new ArrayList<>();
+
         if (row > 0) neighbors.add(new int[]{row - 1, col});
         if (row < rows - 1) neighbors.add(new int[]{row + 1, col});
         if (col > 0) neighbors.add(new int[]{row, col - 1});
         if (col < cols - 1) neighbors.add(new int[]{row, col + 1});
+
         return neighbors;
     }
 
     // find a path with no cycles from an unvisited tile to a visited tile
     private Map<String, int[]> createPath(int[] start) {
-        int currentRow = start[0];
-        int currentCol = start[1];
-        Map<String, int[]> path = new LinkedHashMap<>();
+        int currentRow, currentCol;
+        Map<String, int[]> path;
+
+        currentRow = start[0];
+        currentCol = start[1];
+        path = new LinkedHashMap<>();
 
         while (!grid[currentRow][currentCol].isVisited()) {
-            List<int[]> neighbors = getNeighbors(currentRow, currentCol);
-            int[] next = neighbors.get(rand.nextInt(neighbors.size()));
-            String nextKey = next[0] + "," + next[1];
+            List<int[]> neighbors;
+            int[] next;
+            String nextKey;
+
+            neighbors = getNeighbors(currentRow, currentCol);
+            next = neighbors.get(rand.nextInt(neighbors.size()));
+            nextKey = next[0] + "," + next[1];
 
             if (path.containsKey(nextKey)) {
-                Iterator<String> it = path.keySet().iterator();
+                Iterator<String> it;
+
+                it = path.keySet().iterator();
+
                 while (it.hasNext()) {
-                    String key = it.next();
+                    String key;
+
+                    key = it.next();
+
                     it.remove();
+
                     if (key.equals(nextKey)) break;
                 }
             }
@@ -118,15 +144,23 @@ public class MazeGenerator {
 
     // update the walls of a path and return the number of newly visited tiles
     private int carvePath(Map<String, int[]> path) {
-        int count = 0;
+        int count;
+
+        count = 0;
+
         for (Map.Entry<String, int[]> entry : path.entrySet()) {
-            String[] aux = entry.getKey().split(",");
-            int row = Integer.parseInt(aux[0]);
-            int col = Integer.parseInt(aux[1]);
-            int prevRow = entry.getValue()[0];
-            int prevCol = entry.getValue()[1];
-            Tile current = grid[row][col];
-            Tile prev = grid[prevRow][prevCol];
+            String[] aux;
+            int row, col;
+            int prevRow, prevCol;
+            Tile current, prev;
+
+            aux = entry.getKey().split(",");
+            row = Integer.parseInt(aux[0]);
+            col = Integer.parseInt(aux[1]);
+            prevRow = entry.getValue()[0];
+            prevCol = entry.getValue()[1];
+            current = grid[row][col];
+            prev = grid[prevRow][prevCol];
 
             removeWalls(current, row, col, prev, prevRow, prevCol);
 
@@ -139,6 +173,7 @@ public class MazeGenerator {
                 count++;
             }
         }
+
         return count;
     }
 

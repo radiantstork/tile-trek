@@ -4,14 +4,17 @@ package org.example.mazeproject;
 
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
 public class MazeRenderer {
     // main method
     public static Group render(Tile[][] grid, int startX, int startY, int endX, int endY,
-                               int rows, int cols, int size) {
-        Group group = new Group();
+                               int rows, int cols, int size, Player player) {
+        Group group;
+
+        group = new Group();
 
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
@@ -19,6 +22,7 @@ public class MazeRenderer {
                 drawWalls(group, grid[i][j], j * size, i * size, size);
             }
         }
+        drawPlayer(group, player, size);
         return group;
     }
 
@@ -26,7 +30,10 @@ public class MazeRenderer {
 
     // color the backgrounds of start and end points
     private static void drawBackground(Group group, int row, int col, int startX, int startY, int endX, int endY, int size) {
-        Rectangle background = null;
+        Rectangle background;
+
+        background = null;
+
         if ((row == startX) && (col == startY)) {
             background = new Rectangle(row * size, col * size, size, size);
             background.setFill(Color.LIGHTGREEN);
@@ -34,6 +41,7 @@ public class MazeRenderer {
             background = new Rectangle(row * size, col * size, size, size);
             background.setFill(Color.INDIANRED);
         }
+
         if (background != null) group.getChildren().add(background);
     }
 
@@ -55,5 +63,22 @@ public class MazeRenderer {
             Line left = new Line(x, y, x, y + size);
             group.getChildren().add(left);
         }
+    }
+
+    private static void drawPlayer(Group group, Player player, int size) {
+        int row, col;
+        double centerX, centerY, radius;
+        Circle circle;
+
+        row = player.getRow();
+        col = player.getCol();
+        centerX = col * size + size / 2.0;
+        centerY = row * size + size / 2.0;
+        radius = size * 0.3;
+
+        circle = new Circle(centerX, centerY, radius);
+        circle.setFill(Color.BLACK);
+
+        group.getChildren().add(circle);
     }
 }
