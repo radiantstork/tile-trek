@@ -1,4 +1,8 @@
-// Used for rendering the maze, given a Tile-matrix representation.
+// Used for rendering the maze.
+// 1. it draws the start/end points
+// 2. it draws the walls for each tile (unless the walls are invisible)
+// 3. it draws the question marks (if the tiles have any)
+// 4. it draws the player
 
 package org.example.mazeproject;
 
@@ -7,19 +11,30 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 public class MazeRenderer {
     // main method
     public static Group render(Tile[][] grid, int startX, int startY, int endX, int endY,
                                int rows, int cols, int size, Player player) {
         Group group;
+        GameState state;
 
         group = new Group();
+        state = GameState.getInstance();
 
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                drawBackground(group, i, j, startX, startY, endX, endY, size);
-                drawWalls(group, grid[i][j], j * size, i * size, size);
+                drawBackground(group, i, j, startX, startY, endX, endY, size); // todo: get this out of the loop
+
+                if (!state.isInvisibleWalls()) {
+                    drawWalls(group, grid[i][j], j * size, i * size, size);
+                }
+
+                if (grid[i][j].hasEffect()) {
+                    drawQuestionMark(group, i, j, size);
+                }
             }
         }
         drawPlayer(group, player, size);
@@ -80,5 +95,16 @@ public class MazeRenderer {
         circle.setFill(Color.BLACK);
 
         group.getChildren().add(circle);
+    }
+
+    private static void drawQuestionMark(Group group, int row, int col, int size) {
+        Text question;
+
+        question = new Text("?");
+        question.setFill(Color.CADETBLUE);
+        question.setFont(Font.font(size * 0.7));
+        question.setX(col * size + size * 0.3);
+        question.setY(row * size + size * 0.7);
+        group.getChildren().add(question);
     }
 }

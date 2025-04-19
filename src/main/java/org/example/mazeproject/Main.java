@@ -6,9 +6,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    private static final int SIZE = 20;
-    private static final int ROWS = 10;
-    private static final int COLS = 10;
+    private static final int SIZE = 30;
+    private static final int ROWS = 15;
+    private static final int COLS = 15;
 
     private MazeGenerator mazeGen;
     private Player player;
@@ -48,8 +48,6 @@ public class Main extends Application {
 
         state = GameState.getInstance();
 
-//        state.setInvertedMovement(true); // can comment this
-
         scene.setOnKeyPressed(ev -> {
             int row, col;
             Tile tile;
@@ -75,6 +73,42 @@ public class Main extends Application {
 
                 if (inBounds(newRow, newCol) && !hasWall(tile, dir)) {
                     player.move(newRow, newCol);
+
+                    tile = grid[newRow][newCol];
+                    if (tile.hasEffect()) {
+                        Effect effect;
+
+                        effect = tile.getEffect();
+
+                        switch (effect.getEffectName()) {
+                            case "Vignette" -> {
+                                if ((state.isVignette())) {
+                                    effect.cancelEffect(state);
+                                } else {
+                                    effect.applyEffect(state);
+                                }
+                                System.out.println("Vignette");
+                            }
+                            case "InvertedMovement" -> {
+                                if (state.isInvertedMovement()) {
+                                    effect.cancelEffect(state);
+                                } else {
+                                    effect.applyEffect(state);
+                                }
+                                System.out.println("InvertedMovement");
+                            }
+                            case "InvisibleWalls" -> {
+                                if (state.isInvisibleWalls()) {
+                                    effect.cancelEffect(state);
+                                } else {
+                                    effect.applyEffect(state);
+                                }
+                                System.out.println("InvisibleWalls");
+                            }
+                        }
+
+                        tile.setEffect(null);
+                    }
                 }
             }
 

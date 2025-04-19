@@ -1,0 +1,22 @@
+1. IDEAS
+enum for DIRECTION (TOP BOTTOM LEFT RIGHT)
+class Player
+class GameController (keyboard input, game state - start/reset/win)
+class GameView (loads UI elements - buttons, layout)
+class SurpriseBox (the question mark)
+
+
+background music
+timer
+win conditions?
+DEBUFFS (question mark icon that can be picked up): vignette, walls become invisible/flashing, inverted movement,
+        end gets moved, player gets tped.
+
+
+2. CONVENTIONS
+- all local variable declarations are put at the beginning of their scope
+- "static" comes before "final"
+- the access modifier (if used) is always the first modifier for a class/method/field declaration
+- any source file ends with a new line
+- explicit naming to avoid overuse of comments
+- the main method is placed before the first constructor

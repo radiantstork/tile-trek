@@ -6,6 +6,7 @@ public class Tile {
     private boolean rightWall;
     private boolean bottomWall;
     private boolean leftWall;
+    private Effect effect;
 
     public Tile() {
         this.visited = false;
@@ -17,10 +18,6 @@ public class Tile {
 
     public boolean isVisited() {
         return visited;
-    }
-
-    public void setVisited(boolean visited) {
-        this.visited = visited;
     }
 
     public boolean hasTopWall() {
@@ -37,6 +34,22 @@ public class Tile {
 
     public boolean hasLeftWall() {
         return leftWall;
+    }
+
+    public boolean hasEffect() {
+        return effect != null;
+    }
+
+    public Effect getEffect() {
+        return effect;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
+    }
+
+    public void setEffect(Effect effect) {
+        this.effect = effect;
     }
 
     public void removeTopWall() {

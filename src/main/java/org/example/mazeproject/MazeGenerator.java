@@ -11,12 +11,13 @@ public class MazeGenerator {
     private int startY;
     private int endX, endY;
     private Tile[][] grid;
-    Random rand = new Random();
+    private final Random rand = new Random();
 
     // main method: generate the grid matrix of the maze
     public void generateMaze(int rows, int cols) {
         Tile start;
         int visitedCount;
+        int effectCount;
 
         visitedCount = 0;
 
@@ -36,6 +37,9 @@ public class MazeGenerator {
 
             visitedCount += carvePath(path);
         }
+
+        effectCount = rand.nextInt(5, 15);
+        placeEffects(effectCount);
     }
 
     // ---------- HELPER METHODS -----------
@@ -191,6 +195,25 @@ public class MazeGenerator {
         } else if (currCol == prevCol - 1) {
             current.removeRightWall();
             prev.removeLeftWall();
+        }
+    }
+
+    private void placeEffects(int count) {
+        List<Effect> effects;
+
+        effects = List.of(new VignetteEffect(), new InvertedMovementEffect(), new InvisibleWallsEffect());
+
+        for (int i = 0; i < count; ++i) {
+            int row, col;
+            Tile tile;
+
+            row = rand.nextInt(rows);
+            col = rand.nextInt(cols);
+            tile = grid[row][col];
+
+            if (!tile.hasEffect() && !(row == startX && col == startY)) {
+                tile.setEffect(effects.get(rand.nextInt(effects.size())));
+            }
         }
     }
 
