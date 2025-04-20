@@ -4,9 +4,14 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.*;
+
 public class GameService {
     private final int size;
     private int rows, cols;
+
+    private int stepCount;
+    private List<Integer> sortedTileCounts = new ArrayList<>();
 
     private MazeGenerator mazeGen;
     private Player player;
@@ -164,9 +169,21 @@ public class GameService {
     }
 
     private void checkWinCondition() {
+        ++stepCount;
         if (player.getRow() == end[0] && player.getCol() == end[1]) {
+            int uniqueTileCount;
+
             System.out.println("You won!");
             restartNewLevel();
+
+            sortedTileCounts.add(stepCount);
+            sortedTileCounts.sort(Collections.reverseOrder());
+            stepCount = 0;
+
+            for (Integer count : sortedTileCounts) {
+                System.out.print(count + " ");
+            }
+            System.out.println();
         }
     }
 }

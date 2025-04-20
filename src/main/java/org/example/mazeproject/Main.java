@@ -23,7 +23,7 @@ public class Main extends Application {
 
         gameService = new GameService(20);
         MusicPlayer.playMusic();
-        gameService.startGame(stage, 20, 20);
+        gameService.startGame(stage, 10, 15);
     }
 
     public static void main(String[] args) {
