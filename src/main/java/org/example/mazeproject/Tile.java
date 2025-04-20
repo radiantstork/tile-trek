@@ -1,20 +1,13 @@
 package org.example.mazeproject;
 
-public class Tile {
-    private boolean visited;
-    private boolean topWall;
-    private boolean rightWall;
-    private boolean bottomWall;
-    private boolean leftWall;
-    private Effect effect;
+public abstract class Tile {
+    private boolean visited = false;
+    private boolean topWall = true;
+    private boolean rightWall = true;
+    private boolean bottomWall = true;
+    private boolean leftWall = true;
 
-    public Tile() {
-        this.visited = false;
-        this.topWall = true;
-        this.rightWall = true;
-        this.bottomWall = true;
-        this.leftWall = true;
-    }
+    public Tile() {}
 
     public boolean isVisited() {
         return visited;
@@ -36,20 +29,8 @@ public class Tile {
         return leftWall;
     }
 
-    public boolean hasEffect() {
-        return effect != null;
-    }
-
-    public Effect getEffect() {
-        return effect;
-    }
-
     public void setVisited(boolean visited) {
         this.visited = visited;
-    }
-
-    public void setEffect(Effect effect) {
-        this.effect = effect;
     }
 
     public void removeTopWall() {
@@ -67,4 +48,10 @@ public class Tile {
     public void removeLeftWall() {
         this.leftWall = false;
     }
+
+    public abstract boolean hasEffect();
+
+    public abstract Effect getEffect();
+
+    public abstract void setEffect(Effect effect);
 }

@@ -50,10 +50,10 @@ public class MazeRenderer {
         background = null;
 
         if ((row == startX) && (col == startY)) {
-            background = new Rectangle(row * size, col * size, size, size);
+            background = new Rectangle(col * size, row * size, size, size);
             background.setFill(Color.LIGHTGREEN);
         } else if ((row == endX) && (col == endY)) {
-            background = new Rectangle(row * size, col * size, size, size);
+            background = new Rectangle(col * size, row * size, size, size);
             background.setFill(Color.INDIANRED);
         }
 

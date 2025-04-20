@@ -5,23 +5,66 @@ package org.example.mazeproject;
 import java.util.*;
 
 public class MazeGenerator {
-    private int rows;
-    private int cols;
+    private final int rows;
+    private final int cols;
     private int startX;
     private int startY;
-    private int endX, endY;
-    private Tile[][] grid;
+    private final int endX;
+    private final int endY;
+    private final Tile[][] grid;
     private final Random rand = new Random();
 
+    public MazeGenerator(int rows, int cols) {
+        List<Effect> effects;
+        int corner;
+
+        effects = List.of(new VignetteEffect(), new InvertedMovementEffect(), new InvisibleWallsEffect());
+        this.rows = rows;
+        this.cols = cols;
+        this.grid = new Tile[rows][cols];
+
+        // generate a random starting point (one of the 4 corners)
+        // the end is the opposite of the start
+        corner = rand.nextInt(4);
+        switch (corner) {
+            case 0 -> {
+                this.startX = 0;
+                this.startY = 0;
+            }
+            case 1 -> {
+                this.startX = 0;
+                this.startY = cols - 1;
+            }
+            case 2 -> {
+                this.startX = rows - 1;
+                this.startY = 0;
+            }
+            case 3 -> {
+                this.startX = rows - 1;
+                this.startY = cols - 1;
+            }
+        }
+        this.endX = rows - 1 - startX;
+        this.endY = cols - 1 - startY;
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (i != startX && j != startY && rand.nextDouble() < 0.03) {
+                    Effect eff = effects.get(rand.nextInt(effects.size()));
+                    grid[i][j] = new MysteryTile(eff);
+                } else {
+                    grid[i][j] = new DefaultTile();
+                }
+            }
+        }
+    }
+
     // main method: generate the grid matrix of the maze
-    public void generateMaze(int rows, int cols) {
+    public void generateMaze() {
         Tile start;
         int visitedCount;
-        int effectCount;
 
         visitedCount = 0;
-
-        initializeMazeParameters(rows, cols);
 
         start = grid[startX][startY];
         start.setVisited(true);
@@ -37,50 +80,9 @@ public class MazeGenerator {
 
             visitedCount += carvePath(path);
         }
-
-        effectCount = rand.nextInt(5, 15);
-        placeEffects(effectCount);
     }
 
     // ---------- HELPER METHODS -----------
-
-    // initialize no. of rows/colums, start/end points
-    private void initializeMazeParameters(int rows, int cols) {
-        int corner;
-
-        this.rows = rows;
-        this.cols = cols;
-        this.grid = new Tile[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                grid[i][j] = new Tile();
-            }
-        }
-
-        // generate a random starting point (one of the 4 corners)
-        // the end is the opposite of the start
-        corner = rand.nextInt(4);
-        switch (corner) {
-            case 0 -> {
-                startX = 0;
-                startY = 0;
-            }
-            case 1 -> {
-                startX = 0;
-                startY = cols - 1;
-            }
-            case 2 -> {
-                startX = rows - 1;
-                startY = 0;
-            }
-            case 3 -> {
-                startX = rows - 1;
-                startY = cols - 1;
-            }
-        }
-        endX = rows - 1 - startX;
-        endY = cols - 1 - startY;
-    }
 
     // return a random unvisited tile
     private int[] getRandomUnvisitedTile() {
@@ -195,25 +197,6 @@ public class MazeGenerator {
         } else if (currCol == prevCol - 1) {
             current.removeRightWall();
             prev.removeLeftWall();
-        }
-    }
-
-    private void placeEffects(int count) {
-        List<Effect> effects;
-
-        effects = List.of(new VignetteEffect(), new InvertedMovementEffect(), new InvisibleWallsEffect());
-
-        for (int i = 0; i < count; ++i) {
-            int row, col;
-            Tile tile;
-
-            row = rand.nextInt(rows);
-            col = rand.nextInt(cols);
-            tile = grid[row][col];
-
-            if (!tile.hasEffect() && !(row == startX && col == startY)) {
-                tile.setEffect(effects.get(rand.nextInt(effects.size())));
-            }
         }
     }
 

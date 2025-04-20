@@ -6,9 +6,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    private static final int SIZE = 30;
-    private static final int ROWS = 15;
-    private static final int COLS = 15;
+    private static final int SIZE = 15;
+    private static final int ROWS = 30;
+    private static final int COLS = 30;
 
     private MazeGenerator mazeGen;
     private Player player;
@@ -19,122 +19,11 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        generateMaze();
-        setupScene(stage);
-        setupMovement();
-        stage.show();
-    }
+        GameService gameService;
 
-    private void generateMaze() {
-        mazeGen = new MazeGenerator();
-        mazeGen.generateMaze(ROWS, COLS);
-
-        grid = mazeGen.getGrid();
-        start = mazeGen.getStart();
-        end = mazeGen.getEnd();
-
-        player = new Player(start[0], start[1]);
-    }
-
-    private void setupScene(Stage stage) {
-        maze = MazeRenderer.render(grid, start[0], start[1], end[0], end[1], ROWS, COLS, SIZE, player);
-        scene = new Scene(maze, ROWS * SIZE, COLS * SIZE);
-        stage.setScene(scene);
-        stage.setTitle("Maze Game");
-    }
-
-    private void setupMovement() {
-        GameState state;
-
-        state = GameState.getInstance();
-
-        scene.setOnKeyPressed(ev -> {
-            int row, col;
-            Tile tile;
-            Direction dir;
-
-            row = player.getRow();
-            col = player.getCol();
-            tile = grid[row][col];
-
-            dir = switch (ev.getCode()) {
-                case UP -> (state.isInvertedMovement()) ? Direction.DOWN : Direction.UP;
-                case DOWN -> (state.isInvertedMovement()) ? Direction.UP : Direction.DOWN;
-                case LEFT -> (state.isInvertedMovement()) ? Direction.RIGHT : Direction.LEFT;
-                case RIGHT -> (state.isInvertedMovement()) ? Direction.LEFT : Direction.RIGHT;
-                default -> null;
-            };
-
-            if (dir != null) {
-                int newRow, newCol;
-
-                newRow = row + dir.row;
-                newCol = col + dir.col;
-
-                if (inBounds(newRow, newCol) && !hasWall(tile, dir)) {
-                    player.move(newRow, newCol);
-
-                    tile = grid[newRow][newCol];
-                    if (tile.hasEffect()) {
-                        Effect effect;
-
-                        effect = tile.getEffect();
-
-                        switch (effect.getEffectName()) {
-                            case "Vignette" -> {
-                                if ((state.isVignette())) {
-                                    effect.cancelEffect(state);
-                                } else {
-                                    effect.applyEffect(state);
-                                }
-                                System.out.println("Vignette");
-                            }
-                            case "InvertedMovement" -> {
-                                if (state.isInvertedMovement()) {
-                                    effect.cancelEffect(state);
-                                } else {
-                                    effect.applyEffect(state);
-                                }
-                                System.out.println("InvertedMovement");
-                            }
-                            case "InvisibleWalls" -> {
-                                if (state.isInvisibleWalls()) {
-                                    effect.cancelEffect(state);
-                                } else {
-                                    effect.applyEffect(state);
-                                }
-                                System.out.println("InvisibleWalls");
-                            }
-                        }
-
-                        tile.setEffect(null);
-                    }
-                }
-            }
-
-            maze = MazeRenderer.render(grid, start[0], start[1], end[0], end[1], ROWS, COLS, SIZE, player);
-            scene.setRoot(maze);
-            checkWinCondition(player, end);
-        });
-    }
-
-    private boolean inBounds(int row, int col) {
-        return row >= 0 && row < ROWS && col >= 0 && col < COLS;
-    }
-
-    private boolean hasWall(Tile tile, Direction dir) {
-        return switch (dir) {
-            case UP -> tile.hasTopWall();
-            case DOWN -> tile.hasBottomWall();
-            case LEFT -> tile.hasLeftWall();
-            case RIGHT -> tile.hasRightWall();
-        };
-    }
-
-    private void checkWinCondition(Player player, int[] end) {
-        if (player.getRow() == end[0] && player.getCol() == end[1]) {
-            System.out.println("You won!");
-        }
+        gameService = new GameService(20);
+        MusicPlayer.playMusic();
+        gameService.startGame(stage, 20, 20);
     }
 
     public static void main(String[] args) {
