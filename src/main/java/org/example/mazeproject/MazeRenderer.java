@@ -25,16 +25,23 @@ public class MazeRenderer {
                                int rows, int cols, int size, Player player) {
         Group group;
         GameState state;
+        Palette palette;
+        Color tileColor, wallColor, playerColor;
 
         group = new Group();
         state = GameState.getInstance();
 
+        palette = state.getPalette();
+        tileColor = palette.getTileColor();
+        wallColor = palette.getWallColor();
+        playerColor = palette.getPlayerColor();
+
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
-                drawBackground(group, i, j, startX, startY, endX, endY, size); // todo: get this out of the loop
+                drawBackground(group, i, j, startX, startY, endX, endY, size, tileColor);
 
                 if (!state.isInvisibleWalls() && (!state.isFlashingWalls() || wallsVisible)) {
-                    drawWalls(group, grid[i][j], j * size, i * size, size);
+                    drawWalls(group, grid[i][j], j * size, i * size, size, wallColor);
                 }
 
                 if (grid[i][j].hasEffect()) {
@@ -42,7 +49,7 @@ public class MazeRenderer {
                 }
             }
         }
-        drawPlayer(group, player, size);
+        drawPlayer(group, player, size, playerColor);
 
         if (state.isVignette()) {
             int playerX, playerY;
@@ -82,43 +89,47 @@ public class MazeRenderer {
     }
 
     // color the backgrounds of start and end points
-    private static void drawBackground(Group group, int row, int col, int startX, int startY, int endX, int endY, int size) {
+    private static void drawBackground(Group group, int row, int col, int startX, int startY, int endX, int endY, int size, Color tileColor) {
         Rectangle background;
 
-        background = null;
+        background = new Rectangle(col * size, row * size, size, size);
 
         if ((row == startX) && (col == startY)) {
-            background = new Rectangle(col * size, row * size, size, size);
             background.setFill(Color.LIGHTGREEN);
         } else if ((row == endX) && (col == endY)) {
-            background = new Rectangle(col * size, row * size, size, size);
             background.setFill(Color.INDIANRED);
+        } else {
+            background.setFill(tileColor);
         }
 
-        if (background != null) group.getChildren().add(background);
+        group.getChildren().add(background);
     }
 
     // draw the walls of a tile
-    private static void drawWalls(Group group, Tile tile, int x, int y, int size) {
+    private static void drawWalls(Group group, Tile tile, int x, int y, int size, Color wallColor) {
         if (tile.hasTopWall()) {
             Line top = new Line(x, y, x + size, y);
+            top.setStroke(wallColor);
             group.getChildren().add(top);
         }
         if (tile.hasRightWall()) {
             Line right = new Line(x + size, y, x + size, y + size);
+            right.setStroke(wallColor);
             group.getChildren().add(right);
         }
         if (tile.hasBottomWall()) {
             Line bottom = new Line(x, y + size, x + size, y + size);
+            bottom.setStroke(wallColor);
             group.getChildren().add(bottom);
         }
         if (tile.hasLeftWall()) {
             Line left = new Line(x, y, x, y + size);
+            left.setStroke(wallColor);
             group.getChildren().add(left);
         }
     }
 
-    private static void drawPlayer(Group group, Player player, int size) {
+    private static void drawPlayer(Group group, Player player, int size, Color playerColor) {
         int row, col;
         double centerX, centerY, radius;
         Circle circle;
@@ -130,7 +141,7 @@ public class MazeRenderer {
         radius = size * 0.3;
 
         circle = new Circle(centerX, centerY, radius);
-        circle.setFill(Color.BLACK);
+        circle.setFill(playerColor);
 
         group.getChildren().add(circle);
     }

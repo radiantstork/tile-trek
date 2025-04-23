@@ -1,4 +1,4 @@
-// Used for generating the Tile-matrix representation of a random maze.
+// MazeGenerator: used for generating the Tile-matrix representation of a random maze.
 
 package org.example.mazeproject;
 

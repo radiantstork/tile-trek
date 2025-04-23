@@ -1,3 +1,5 @@
+// InvertedMovementEffect: directions get inverted.
+
 package org.example.mazeproject;
 
 public class InvertedMovementEffect implements Effect {

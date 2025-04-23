@@ -8,9 +8,8 @@ public class Main extends Application {
     public void start(Stage stage) {
         GameService gameService;
 
-        gameService = new GameService(25);
-        MusicPlayer.playMusic();
-        gameService.startGame(stage, 20, 20);
+        gameService = new GameService();
+        gameService.startGame(stage, 20, 20, 25);
     }
 
     public static void main(String[] args) {

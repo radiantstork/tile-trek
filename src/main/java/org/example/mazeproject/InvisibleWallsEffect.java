@@ -1,3 +1,5 @@
+// InvisibleWallsEffect: walls are no longer visible, but they are still there.
+
 package org.example.mazeproject;
 
 public class InvisibleWallsEffect implements Effect {

@@ -1,3 +1,5 @@
+// Effect: interface for effects (InvisibleWalls, Vignette, InvertedMovement, etc).
+
 package org.example.mazeproject;
 
 public interface Effect {

@@ -1,3 +1,5 @@
+// DefaultTile: a tile with no effects.
+
 package org.example.mazeproject;
 
 public class DefaultTile extends Tile {

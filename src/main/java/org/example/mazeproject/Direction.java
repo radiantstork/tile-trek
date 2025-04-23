@@ -1,3 +1,5 @@
+// Direction: the player may move UP/DOWN/LEFT/RIGHT.
+
 package org.example.mazeproject;
 
 public enum Direction {

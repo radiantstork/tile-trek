@@ -1,3 +1,5 @@
+// GameService: API with operations such as running the game, restarting the level, handling effects, etc.
+
 package org.example.mazeproject;
 
 import javafx.animation.KeyFrame;
@@ -10,7 +12,7 @@ import javafx.util.Duration;
 import java.util.*;
 
 public class GameService {
-    private final int size;
+    private int size;
     private int rows, cols;
 
     private Timeline flashingWallsTimeline;
@@ -27,14 +29,15 @@ public class GameService {
     private Scene scene;
     private final GameState state = GameState.getInstance();
 
-    public GameService(int size) {
-        this.size = size;
+    public GameService() {
     }
 
-    public void startGame(Stage stage, int rows, int cols) {
+    // calls the methods for generating/rendering the maze, setting up player controls, etc.
+    public void startGame(Stage stage, int rows, int cols, int size) {
         this.rows = rows;
         this.cols = cols;
         this.stage = stage;
+        this.size = size;
 
         state.reset();
 
@@ -46,8 +49,13 @@ public class GameService {
         stage.setScene(scene);
         stage.setTitle("Tile Trek");
         stage.show();
+
+        toggleMusic();
     }
 
+    // ----- HELPER METHODS -----
+
+    // restarts the game with a new level of the same dimensions.
     private void restartNewLevel() {
         System.out.println("Restarting the game.");
         state.reset();
@@ -58,6 +66,28 @@ public class GameService {
         stage.show();
     }
 
+    // restarts the current level.
+    private void restartCurrentLevel() {
+        System.out.println("Restarting the current level.");
+        player.move(start[0], start[1]);
+        mazeGroup = MazeRenderer.render(grid, start[0], start[1], end[0], end[1], rows, cols, size, player);
+        scene.setRoot(mazeGroup);
+    }
+
+    private void toggleMusic() {
+        boolean musicState;
+
+        musicState = !state.isMusicActive();
+        state.setMusic(musicState);
+
+        if (musicState) {
+            MusicPlayer.playMusic();
+        } else {
+            MusicPlayer.stopMusic();
+        }
+    }
+
+    // generates the maze, gets the grid/start/end/player attributes.
     private void generateMaze() {
         MazeGenerator mazeGen = new MazeGenerator(rows, cols);
         mazeGen.generateMaze();
@@ -69,11 +99,13 @@ public class GameService {
         player = new Player(start[0], start[1]);
     }
 
+    // renders the maze.
     private void setupScene() {
         mazeGroup = MazeRenderer.render(grid, start[0], start[1], end[0], end[1], rows, cols, size, player);
         scene = new Scene(mazeGroup, cols * size, rows * size);
     }
 
+    // sets up player controls.
     private void setupInput() {
         scene.setOnKeyPressed(ev -> {
             int row, col;
@@ -100,6 +132,12 @@ public class GameService {
                 case R:
                     restartNewLevel();
                     break;
+                case C:
+                    restartCurrentLevel();
+                    break;
+                case M:
+                    toggleMusic();
+                    break;
                 default:
                     break;
             }
@@ -123,10 +161,12 @@ public class GameService {
         });
     }
 
+    // checks if the position is legal.
     private boolean inBounds(int row, int col) {
         return row >= 0 && row < rows && col >= 0 && col < cols;
     }
 
+    // checks if there's a wall where the player wants to move.
     private boolean hasWall(Tile tile, Direction dir) {
         return switch (dir) {
             case UP -> tile.hasTopWall();
@@ -136,6 +176,7 @@ public class GameService {
         };
     }
 
+    // handles effects.
     private void handleEffect(Tile tile) {
         if (tile.hasEffect()) {
             Effect effect;
@@ -184,6 +225,7 @@ public class GameService {
         }
     }
 
+    // checks if the player won the game every time they move.
     private void checkWinCondition() {
         ++stepCount;
         if (player.getRow() == end[0] && player.getCol() == end[1]) {
@@ -200,6 +242,8 @@ public class GameService {
             System.out.println();
         }
     }
+
+    // ----- HELPER METHODS FOR flashingWallsEffect ------
 
     private void startFlashingWalls() {
         stopFlashingWalls();

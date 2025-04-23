@@ -1,3 +1,5 @@
+// Flashing walls (1-second timer).
+
 package org.example.mazeproject;
 
 public class FlashingWallsEffect implements Effect {
