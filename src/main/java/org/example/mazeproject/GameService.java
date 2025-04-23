@@ -1,8 +1,11 @@
 package org.example.mazeproject;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.*;
 
@@ -10,10 +13,12 @@ public class GameService {
     private final int size;
     private int rows, cols;
 
-    private int stepCount;
-    private List<Integer> sortedTileCounts = new ArrayList<>();
+    private Timeline flashingWallsTimeline;
+    private boolean wallsVisible = true;
 
-    private MazeGenerator mazeGen;
+    private int stepCount;
+    private final List<Integer> sortedTileCounts = new ArrayList<>();
+
     private Player player;
     private int[] start, end;
     private Tile[][] grid;
@@ -54,7 +59,7 @@ public class GameService {
     }
 
     private void generateMaze() {
-        mazeGen = new MazeGenerator(rows, cols);
+        MazeGenerator mazeGen = new MazeGenerator(rows, cols);
         mazeGen.generateMaze();
 
         grid = mazeGen.getGrid();
@@ -159,8 +164,19 @@ public class GameService {
                         effect.cancelEffect(state);
                     } else {
                         effect.applyEffect(state);
+                        stopFlashingWalls();
                     }
                     System.out.println("InvisibleWalls toggled");
+                }
+                case "FlashingWalls" -> {
+                    if (state.isFlashingWalls()) {
+                        effect.cancelEffect(state);
+                        stopFlashingWalls();
+                    } else {
+                        effect.applyEffect(state);
+                        startFlashingWalls();
+                    }
+                    System.out.println("FlashingWalls toggled");
                 }
             }
 
@@ -171,8 +187,6 @@ public class GameService {
     private void checkWinCondition() {
         ++stepCount;
         if (player.getRow() == end[0] && player.getCol() == end[1]) {
-            int uniqueTileCount;
-
             System.out.println("You won!");
             restartNewLevel();
 
@@ -186,4 +200,30 @@ public class GameService {
             System.out.println();
         }
     }
+
+    private void startFlashingWalls() {
+        stopFlashingWalls();
+
+        flashingWallsTimeline = new Timeline(
+                new KeyFrame(Duration.seconds(1), _ -> {
+                    wallsVisible = !wallsVisible;
+                    MazeRenderer.setWallsVisible(wallsVisible);
+                    mazeGroup = MazeRenderer.render(grid, start[0], start[1], end[0], end[1], rows, cols, size, player);
+                    scene.setRoot(mazeGroup);
+                })
+        );
+
+        flashingWallsTimeline.setCycleCount(Timeline.INDEFINITE);
+        flashingWallsTimeline.play();
+    }
+
+    private void stopFlashingWalls() {
+        if (flashingWallsTimeline != null) {
+            flashingWallsTimeline.stop();
+        }
+
+        wallsVisible = true;
+        MazeRenderer.setWallsVisible(true);
+    }
+
 }

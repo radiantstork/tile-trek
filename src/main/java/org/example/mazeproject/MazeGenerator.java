@@ -18,7 +18,7 @@ public class MazeGenerator {
         List<Effect> effects;
         int corner;
 
-        effects = List.of(new VignetteEffect(), new InvertedMovementEffect(), new InvisibleWallsEffect());
+        effects = List.of(new VignetteEffect(), new InvertedMovementEffect(), new InvisibleWallsEffect(), new FlashingWallsEffect());
         this.rows = rows;
         this.cols = cols;
         this.grid = new Tile[rows][cols];
@@ -49,7 +49,7 @@ public class MazeGenerator {
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                if (i != startX && j != startY && rand.nextDouble() < 0.03) {
+                if (i != startX && j != startY && rand.nextDouble() < 0.05) {
                     Effect eff = effects.get(rand.nextInt(effects.size()));
                     grid[i][j] = new MysteryTile(eff);
                 } else {

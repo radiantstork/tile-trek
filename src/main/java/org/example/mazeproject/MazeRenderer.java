@@ -8,6 +8,9 @@ package org.example.mazeproject;
 
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
@@ -15,6 +18,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 public class MazeRenderer {
+    private static boolean wallsVisible = true;
+
     // main method
     public static Group render(Tile[][] grid, int startX, int startY, int endX, int endY,
                                int rows, int cols, int size, Player player) {
@@ -28,7 +33,7 @@ public class MazeRenderer {
             for (int j = 0; j < cols; ++j) {
                 drawBackground(group, i, j, startX, startY, endX, endY, size); // todo: get this out of the loop
 
-                if (!state.isInvisibleWalls()) {
+                if (!state.isInvisibleWalls() && (!state.isFlashingWalls() || wallsVisible)) {
                     drawWalls(group, grid[i][j], j * size, i * size, size);
                 }
 
@@ -38,10 +43,43 @@ public class MazeRenderer {
             }
         }
         drawPlayer(group, player, size);
+
+        if (state.isVignette()) {
+            int playerX, playerY;
+            double radius;
+            double fadeDistance;
+            RadialGradient fogGradient;
+            Rectangle overlay;
+
+            playerX = player.getCol() * size + size / 2;
+            playerY = player.getRow() * size + size / 2;
+            radius = size * 2.5;
+            fadeDistance = size * 1.5;
+
+            fogGradient = new RadialGradient(
+                    0, 0,
+                    playerX, playerY,
+                    radius + fadeDistance,
+                    false,
+                    CycleMethod.NO_CYCLE,
+                    new Stop(0, Color.TRANSPARENT),
+                    new Stop(radius / (radius + fadeDistance), Color.color(0, 0, 0, 0.6)),
+                    new Stop(1.0, Color.color(0, 0, 0, 0.95))
+            );
+
+            overlay = new Rectangle(cols * size, rows * size);
+            overlay.setFill(fogGradient);
+            group.getChildren().add(overlay);
+        }
+
         return group;
     }
 
     // ---------- HELPERS ----------
+
+    public static void setWallsVisible(boolean visible) {
+        wallsVisible = visible;
+    }
 
     // color the backgrounds of start and end points
     private static void drawBackground(Group group, int row, int col, int startX, int startY, int endX, int endY, int size) {

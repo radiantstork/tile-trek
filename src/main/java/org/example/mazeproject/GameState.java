@@ -5,6 +5,7 @@ public class GameState {
     private boolean invertedMovement = false;
     private boolean invisibleWalls = false;
     private boolean vignette = false;
+    private boolean flashingWalls = false;
 
     private GameState() {
     }
@@ -28,6 +29,10 @@ public class GameState {
         return vignette;
     }
 
+    public boolean isFlashingWalls() {
+        return flashingWalls;
+    }
+
     public void setInvertedMovement(boolean inverted) {
         this.invertedMovement = inverted;
     }
@@ -36,6 +41,8 @@ public class GameState {
         this.invisibleWalls = invisible;
     }
 
+    public void setFlashingWalls(boolean flashing) { this.flashingWalls = flashing; }
+
     public void setVignette(boolean vignette) {
         this.vignette = vignette;
     }
@@ -43,6 +50,7 @@ public class GameState {
     public void reset() {
         this.invertedMovement = false;
         this.invisibleWalls = false;
+        this.flashingWalls = false;
         this.vignette = false;
     }
 }
