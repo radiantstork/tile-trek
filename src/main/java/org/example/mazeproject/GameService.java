@@ -15,6 +15,8 @@ public class GameService {
     private int size;
     private int rows, cols;
 
+    private static final Palette[] palettes = Palette.values();
+
     private Timeline flashingWallsTimeline;
     private boolean wallsVisible = true;
 
@@ -57,7 +59,6 @@ public class GameService {
 
     // restarts the game with a new level of the same dimensions.
     private void restartNewLevel() {
-        System.out.println("Restarting the game.");
         state.reset();
         generateMaze();
         setupScene();
@@ -68,7 +69,6 @@ public class GameService {
 
     // restarts the current level.
     private void restartCurrentLevel() {
-        System.out.println("Restarting the current level.");
         player.move(start[0], start[1]);
         mazeGroup = MazeRenderer.render(grid, start[0], start[1], end[0], end[1], rows, cols, size, player);
         scene.setRoot(mazeGroup);
@@ -81,10 +81,34 @@ public class GameService {
         state.setMusic(musicState);
 
         if (musicState) {
-            MusicPlayer.playMusic();
+            playNextTrack();
         } else {
             MusicPlayer.stopMusic();
         }
+    }
+
+    private void playNextTrack() {
+        boolean musicState;
+
+        musicState = state.isMusicActive();
+        if (musicState) {
+            int nextTrackIndex;
+
+            nextTrackIndex = (state.getTrackIndex() + 1) % MusicPlayer.getTrackCount();
+            state.setTrackIndex(nextTrackIndex);
+
+            MusicPlayer.stopMusic();
+            MusicPlayer.playMusic(nextTrackIndex);
+        }
+    }
+
+    private void switchPalette() {
+        Palette currentPalette;
+        int index;
+
+        currentPalette = state.getPalette();
+        index = currentPalette.ordinal();
+        state.setPalette(palettes[(index + 1) % palettes.length]);
     }
 
     // generates the maze, gets the grid/start/end/player attributes.
@@ -130,13 +154,32 @@ public class GameService {
                     dir = state.isInvertedMovement() ? Direction.LEFT : Direction.RIGHT;
                     break;
                 case R:
+                    System.out.println("Restarting the game.");
                     restartNewLevel();
                     break;
                 case C:
+                    System.out.println("Restarting the current level.");
                     restartCurrentLevel();
                     break;
                 case M:
+                    System.out.println("Playing the next track.");
+                    playNextTrack();
+                    break;
+                case N:
+                    System.out.println("Toggling the music.");
                     toggleMusic();
+                    break;
+                case P:
+                    System.out.println("Switching color palette.");
+                    switchPalette();
+                    break;
+                case MINUS:
+                    System.out.println("Decreasing the volume.");
+                    MusicPlayer.decreaseVolume();
+                    break;
+                case EQUALS:
+                    System.out.println("Increasing the volume.");
+                    MusicPlayer.increaseVolume();
                     break;
                 default:
                     break;

@@ -7,14 +7,16 @@ import java.net.URL;
 
 public class MusicPlayer {
     private static MediaPlayer mediaPlayer;
+    private static final int trackCount = 7;
+    private static double currentVolume = 0.3;
 
-    public static void playMusic() {
+    public static void playMusic(int trackIndex) {
         try {
             if (mediaPlayer == null) {
                 String path;
                 Media media;
 
-                path = "/audio/background.mp3";
+                path = "/audio/background" + trackIndex + ".mp3";
                 URL url = MusicPlayer.class.getResource(path);
                 assert url != null;
                 media = new Media(url.toExternalForm());
@@ -31,6 +33,26 @@ public class MusicPlayer {
     public static void stopMusic() {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
+            mediaPlayer.dispose();
+            mediaPlayer = null;
+        }
+    }
+
+    public static int getTrackCount() {
+        return trackCount;
+    }
+
+    public static void increaseVolume() {
+        if (currentVolume < 1) {
+            currentVolume += 0.1;
+            mediaPlayer.setVolume(currentVolume);
+        }
+    }
+
+    public static void decreaseVolume() {
+        if (currentVolume > 0) {
+            currentVolume -= 0.1;
+            mediaPlayer.setVolume(currentVolume);
         }
     }
 }

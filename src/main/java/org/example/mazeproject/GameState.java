@@ -5,14 +5,27 @@ package org.example.mazeproject;
 
 public class GameState {
     private static GameState instance;
-    private boolean invertedMovement = false;
-    private boolean invisibleWalls = false;
-    private boolean vignette = false;
-    private boolean flashingWalls = false;
-    private boolean musicActive = false;
-    private Palette palette = Palette.DARK;
+
+    private boolean invertedMovement;
+    private boolean invisibleWalls;
+    private boolean vignette;
+    private boolean flashingWalls;
+
+    private boolean musicActive;
+    private int trackIndex;
+
+    private Palette palette;
 
     private GameState() {
+        this.invertedMovement = false;
+        this.invisibleWalls = false;
+        this.vignette = false;
+        this.flashingWalls = false;
+
+        this.musicActive = false;
+        this.trackIndex = MusicPlayer.getTrackCount() - 1; // it will increment, modulo trackCount and start from 0
+
+        this.palette = Palette.CLASSIC;
     }
 
     public static GameState getInstance() {
@@ -42,6 +55,10 @@ public class GameState {
         return musicActive;
     }
 
+    public int getTrackIndex() {
+        return trackIndex;
+    }
+
     public Palette getPalette() {
         return palette;
     }
@@ -68,6 +85,10 @@ public class GameState {
 
     public void setMusic(boolean music) {
         this.musicActive = music;
+    }
+
+    public void setTrackIndex(int trackIndex) {
+        this.trackIndex = trackIndex;
     }
 
     public void reset() {

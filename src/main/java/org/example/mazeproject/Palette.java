@@ -4,8 +4,11 @@ import javafx.scene.paint.Color;
 
 public enum Palette {
     // (tileColor, wallColor, playerColor)
-    CLASSIC(Color.WHITE, Color.BLACK, Color.BLACK),
-    DARK(Color.BLACK, Color.WHITE, Color.WHITE);
+    CLASSIC(Color.WHITE, Color.BLACK, Color.CORNFLOWERBLUE),
+    DARK(Color.BLACK, Color.WHITE, Color.CORNFLOWERBLUE),
+    PINK(Color.PURPLE, Color.PINK, Color.CORNFLOWERBLUE),
+    HEAT(Color.DARKRED, Color.LIGHTGOLDENRODYELLOW, Color.CORNFLOWERBLUE);
+
 
     private final Color tileColor;
     private final Color wallColor;
