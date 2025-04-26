@@ -7,7 +7,7 @@ import java.net.URL;
 
 public class MusicPlayer {
     private static MediaPlayer mediaPlayer;
-    private static final int trackCount = 7;
+    private static final int trackCount = 4;
     private static double currentVolume = 0.3;
 
     public static void playMusic(int trackIndex) {
