@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class GameService {
     private int size;
@@ -20,7 +21,6 @@ public class GameService {
     private Timeline flashingWallsTimeline;
     private boolean wallsVisible = true;
 
-    private int stepCount;
     private final List<Integer> sortedTileCounts = new ArrayList<>();
 
     private Player player;
@@ -31,7 +31,10 @@ public class GameService {
     private Scene scene;
     private final GameState state = GameState.getInstance();
 
-    public GameService() {
+    private Consumer<Player> onLevelComplete;
+
+    public void setOnLevelComplete(Consumer<Player> callback) {
+        this.onLevelComplete = callback;
     }
 
     // calls the methods for generating/rendering the maze, setting up player controls, etc.
@@ -41,30 +44,24 @@ public class GameService {
         this.stage = stage;
         this.size = size;
 
-        state.reset();
-
-        generateMaze();
-
-        setupScene();
-        setupInput();
-
-        stage.setScene(scene);
         stage.setTitle("Tile Trek");
-        stage.show();
-
         toggleMusic();
+        startNewLevel();
     }
 
     // ----- HELPER METHODS -----
 
     // restarts the game with a new level of the same dimensions.
-    private void restartNewLevel() {
+    private void startNewLevel() {
         state.reset();
         generateMaze();
         setupScene();
         setupInput();
         stage.setScene(scene);
         stage.show();
+
+        CommandLogger.log("START_LEVEL");
+        System.out.println("START_LEVEL");
     }
 
     // restarts the current level.
@@ -72,6 +69,9 @@ public class GameService {
         player.move(start[0], start[1]);
         mazeGroup = MazeRenderer.render(grid, start[0], start[1], end[0], end[1], rows, cols, size, player);
         scene.setRoot(mazeGroup);
+
+        CommandLogger.log("RESTART_LEVEL");
+        System.out.println("RESTART_LEVEL");
     }
 
     private void toggleMusic() {
@@ -85,6 +85,9 @@ public class GameService {
         } else {
             MusicPlayer.stopMusic();
         }
+
+        CommandLogger.log("TOGGLE_MUSIC");
+        System.out.println("TOGGLE_MUSIC");
     }
 
     private void playNextTrack() {
@@ -99,6 +102,9 @@ public class GameService {
 
             MusicPlayer.stopMusic();
             MusicPlayer.playMusic(nextTrackIndex);
+
+            CommandLogger.log("PLAY_NEXT_TRACK");
+            System.out.println("PLAY_NEXT_TRACK");
         }
     }
 
@@ -109,6 +115,9 @@ public class GameService {
         currentPalette = state.getPalette();
         index = currentPalette.ordinal();
         state.setPalette(palettes[(index + 1) % palettes.length]);
+
+        CommandLogger.log("SWITCH_PALETTE");
+        System.out.println("SWITCH_PALETTE");
     }
 
     // generates the maze, gets the grid/start/end/player attributes.
@@ -121,12 +130,18 @@ public class GameService {
         end = mazeGen.getEnd();
 
         player = new Player(start[0], start[1]);
+
+        CommandLogger.log("GENERATE_MAZE");
+        System.out.println("GENERATE_MAZE");
     }
 
     // renders the maze.
     private void setupScene() {
         mazeGroup = MazeRenderer.render(grid, start[0], start[1], end[0], end[1], rows, cols, size, player);
         scene = new Scene(mazeGroup, cols * size, rows * size);
+
+        CommandLogger.log("RENDER_MAZE");
+        System.out.println("RENDER_MAZE");
     }
 
     // sets up player controls.
@@ -154,31 +169,24 @@ public class GameService {
                     dir = state.isInvertedMovement() ? Direction.LEFT : Direction.RIGHT;
                     break;
                 case R:
-                    System.out.println("Restarting the game.");
-                    restartNewLevel();
+                    startNewLevel();
                     break;
                 case C:
-                    System.out.println("Restarting the current level.");
                     restartCurrentLevel();
                     break;
                 case M:
-                    System.out.println("Playing the next track.");
                     playNextTrack();
                     break;
                 case N:
-                    System.out.println("Toggling the music.");
                     toggleMusic();
                     break;
                 case P:
-                    System.out.println("Switching color palette.");
                     switchPalette();
                     break;
                 case MINUS:
-                    System.out.println("Decreasing the volume.");
                     MusicPlayer.decreaseVolume();
                     break;
                 case EQUALS:
-                    System.out.println("Increasing the volume.");
                     MusicPlayer.increaseVolume();
                     break;
                 default:
@@ -202,6 +210,9 @@ public class GameService {
             scene.setRoot(mazeGroup);
             checkWinCondition();
         });
+
+        CommandLogger.log("SET_PLAYER_CONTROLS");
+        System.out.println("SET_PLAYER_CONTROLS");
     }
 
     // checks if the position is legal.
@@ -225,6 +236,7 @@ public class GameService {
             Effect effect;
 
             effect = tile.getEffect();
+            player.incrementEffectsPickedUp();
 
             switch (effect.getEffectName()) {
                 case "Vignette" -> {
@@ -233,7 +245,9 @@ public class GameService {
                     } else {
                         effect.applyEffect(state);
                     }
-                    System.out.println("Vignette toggled");
+
+                    CommandLogger.log("EFFECT_TOGGLED_VIGNETTE");
+                    System.out.println("EFFECT_TOGGLED_VIGNETTE");
                 }
                 case "InvertedMovement" -> {
                     if (state.isInvertedMovement()) {
@@ -241,7 +255,9 @@ public class GameService {
                     } else {
                         effect.applyEffect(state);
                     }
-                    System.out.println("InvertedMovement toggled");
+
+                    CommandLogger.log("EFFECT_TOGGLED_INVERTED_MOVEMENT");
+                    System.out.println("EFFECT_TOGGLED_INVERTED_MOVEMENT");
                 }
                 case "InvisibleWalls" -> {
                     if (state.isInvisibleWalls()) {
@@ -250,7 +266,9 @@ public class GameService {
                         effect.applyEffect(state);
                         stopFlashingWalls();
                     }
-                    System.out.println("InvisibleWalls toggled");
+
+                    CommandLogger.log("EFFECT_TOGGLED_INVISIBLE_WALLS");
+                    System.out.println("EFFECT_TOGGLED_INVISIBLE_WALLS");
                 }
                 case "FlashingWalls" -> {
                     if (state.isFlashingWalls()) {
@@ -260,24 +278,30 @@ public class GameService {
                         effect.applyEffect(state);
                         startFlashingWalls();
                     }
-                    System.out.println("FlashingWalls toggled");
+
+                    CommandLogger.log("EFFECT_TOGGLED_FLASHING_WALLS");
+                    System.out.println("EFFECT_TOGGLED_FLASHING_WALLS");
                 }
             }
-
             tile.setEffect(null);
         }
     }
 
     // checks if the player won the game every time they move.
     private void checkWinCondition() {
-        ++stepCount;
         if (player.getRow() == end[0] && player.getCol() == end[1]) {
-            System.out.println("You won!");
-            restartNewLevel();
+            CommandLogger.log("LEVEL_COMPLETED");
+            System.out.println("LEVEL_COMPLETED");
 
-            sortedTileCounts.add(stepCount);
+            player.incrementLevelsBeaten();
+
+            if (onLevelComplete != null) onLevelComplete.accept(player);
+
+            sortedTileCounts.add(player.getCountMoves());
             sortedTileCounts.sort(Collections.reverseOrder());
-            stepCount = 0;
+
+            startNewLevel();
+            player.resetCount();
 
             for (Integer count : sortedTileCounts) {
                 System.out.print(count + " ");

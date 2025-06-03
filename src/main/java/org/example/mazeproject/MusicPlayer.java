@@ -15,10 +15,13 @@ public class MusicPlayer {
             if (mediaPlayer == null) {
                 String path;
                 Media media;
+                URL url;
 
                 path = "/audio/background" + trackIndex + ".mp3";
-                URL url = MusicPlayer.class.getResource(path);
+
+                url = MusicPlayer.class.getResource(path);
                 assert url != null;
+
                 media = new Media(url.toExternalForm());
                 mediaPlayer = new MediaPlayer(media);
                 mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
@@ -47,6 +50,9 @@ public class MusicPlayer {
             currentVolume += 0.1;
             mediaPlayer.setVolume(currentVolume);
         }
+
+        CommandLogger.log("INCREASE_VOLUME");
+        System.out.println("INCREASE_VOLUME");
     }
 
     public static void decreaseVolume() {
@@ -54,5 +60,8 @@ public class MusicPlayer {
             currentVolume -= 0.1;
             mediaPlayer.setVolume(currentVolume);
         }
+
+        CommandLogger.log("DECREASE_VOLUME");
+        System.out.println("DECREASE_VOLUME");
     }
 }
